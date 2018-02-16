@@ -290,7 +290,7 @@ void AskForPendingSyncCheckpoint(CNode* pfrom)
 // Verify sync checkpoint master pubkey and reset sync checkpoint if changed
 bool CheckCheckpointPubKey()
 {
-    std::string strPubKey = "";
+    std::string strPubKey = "04e19d7361bfaf777db13820eb464f5c1ee39fe690fcd90127360c1161d17263b4e0697f6c2cca84f8f5eb6e514469f26e12a69e15055ef29cae06ee6d05c063d3";
     std::string strMasterPubKey = fTestNet? CSyncCheckpoint::strTestPubKey : CSyncCheckpoint::strMainPubKey;
     if (!pblocktree->ReadCheckpointPubKey(strPubKey) || strPubKey != strMasterPubKey)
     {

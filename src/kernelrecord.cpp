@@ -27,7 +27,7 @@ vector<KernelRecord> KernelRecord::decomposeOutput(const CWallet *wallet, const 
     int64 nTime = wtx.GetTxTime();
     uint256 hash = wtx.GetHash();
     std::map<std::string, std::string> mapValue = wtx.mapValue;
-    int nDayWeight = (min((GetAdjustedTime() - nTime), (int64)STAKE_MAX_AGE) - nStakeMinAge) / 86400;
+    int nDayWeight = (min((GetAdjustedTime() - nTime), (int64)(GetAdjustedTime() > FORK_TIME ? STAKE_MAX_AGE_2 : STAKE_MAX_AGE)) - nStakeMinAge) / 86400;
 
     if (showTransaction(wtx))
     {
@@ -73,7 +73,7 @@ double KernelRecord::getProbToMintStake(double difficulty, int timeOffset) const
 {
     double maxTarget = pow(static_cast<double>(2), 224);
     double target = maxTarget / difficulty;
-    int dayWeight = (min((GetAdjustedTime() - nTime) + timeOffset, (int64)STAKE_MAX_AGE) - nStakeMinAge) / 86400;
+    int dayWeight = (min((GetAdjustedTime() - nTime) + timeOffset, (int64)(GetAdjustedTime() > FORK_TIME ? STAKE_MAX_AGE_2 : STAKE_MAX_AGE)) - nStakeMinAge) / 86400;
     uint64 coinAge = max(nValue * dayWeight / COIN, (int64)0);
     return target * coinAge / pow(static_cast<double>(2), 256);
 }

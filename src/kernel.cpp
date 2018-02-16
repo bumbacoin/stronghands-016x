@@ -20,12 +20,12 @@ unsigned int nProtocolV04TestSwitchTime = 1395700000;
 // to maintain current network protocols Protocol v0.5 and v0.6 set to trigger in 2050, giving plenty of time
  
 // Protocol switch time of v0.5 kernel protocol
-unsigned int nProtocolV05SwitchTime     = 2525524165;
-unsigned int nProtocolV05TestSwitchTime = 2525524165;
+unsigned int nProtocolV05SwitchTime     = 9995524165; //2525524165;
+unsigned int nProtocolV05TestSwitchTime = 9995524165; //2525524165
 // Protocol switch time of v0.6 kernel protocol
 // supermajority hardfork: actual fork will happen later than switch time
-const unsigned int nProtocolV06SwitchTime     = 2525524165; // Tue 12 Dec 03:40:00 UTC 2017
-const unsigned int nProtocolV06TestSwitchTime = 2525524165; // Tue 17 Oct 00:00:00 UTC 2017
+const unsigned int nProtocolV06SwitchTime     = 9995524165; // Tue 12 Dec 03:40:00 UTC 2017
+const unsigned int nProtocolV06TestSwitchTime = 9995524165; // Tue 17 Oct 00:00:00 UTC 2017
 
 
 // Modifier interval: time to elapse before new modifier is computed
@@ -57,14 +57,14 @@ bool IsProtocolV04(unsigned int nTimeBlock)
 // Whether the given transaction is subject to new v0.5 protocol
 bool IsProtocolV05(unsigned int nTimeTx)
 {
-    return (nTimeTx >= (fTestNet? nProtocolV05TestSwitchTime : nProtocolV05SwitchTime));
+    return false; //(nTimeTx >= (fTestNet? nProtocolV05TestSwitchTime : nProtocolV05SwitchTime));
 }
 
 // Whether a given block is subject to new v0.6 protocol
 // Test against previous block index! (always available)
 bool IsProtocolV06(const CBlockIndex* pindexPrev)
 {
-  if (pindexPrev->nTime < (fTestNet? nProtocolV06TestSwitchTime : nProtocolV06SwitchTime))
+/*  if (pindexPrev->nTime < (fTestNet? nProtocolV06TestSwitchTime : nProtocolV06SwitchTime))
     return false;
 
   // if 900 of the last 1,000 blocks are version 2 or greater (90/100 if testnet):
@@ -74,7 +74,7 @@ bool IsProtocolV06(const CBlockIndex* pindexPrev)
   if ((!fTestNet && CBlockIndex::IsSuperMajority(2, pindexPrev, 900, 1000)) ||
       (fTestNet && CBlockIndex::IsSuperMajority(2, pindexPrev, 90, 100)))
     return true;
-
+*/
   return false;
 }
 
@@ -407,7 +407,7 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlockHeader& blockFrom, uns
     // v0.3 protocol kernel hash weight starts from 0 at the 30-day min age
     // this change increases active coins participating the hash and helps
     // to secure the network when proof-of-stake difficulty is low
-    int64 nTimeWeight = min((int64)nTimeTx - txPrev.nTime, (int64)STAKE_MAX_AGE) - (IsProtocolV03(nTimeTx)? nStakeMinAge : 0);
+    int64 nTimeWeight = min((int64)nTimeTx - txPrev.nTime, (int64)(GetAdjustedTime() > FORK_TIME ? STAKE_MAX_AGE_2 : STAKE_MAX_AGE)) - (IsProtocolV03(nTimeTx)? nStakeMinAge : 0);
     CBigNum bnCoinDayWeight = CBigNum(nValueIn) * nTimeWeight / COIN / (24 * 60 * 60);
     // Calculate hash
     CDataStream ss(SER_GETHASH, 0);

@@ -1123,8 +1123,19 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 
 int64 GetProofOfWorkReward(unsigned int nBits)
 {
-    CBigNum bnSubsidyLimit = MAX_MINT_PROOF_OF_WORK;
-    CBigNum bnTarget;
+	int64 nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK;  // 9999 coins
+	
+	if (nBestHeight > 589500)
+	{
+		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2 * 2;  // 500,000 coins
+	}
+	
+	else if (nBestHeight > 609500)
+	{
+		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2;  // 250,000 coins
+	}
+	
+    CBigNum bnSubsidyLimit = nMaxMintProofOfWork;    CBigNum bnTarget;
     bnTarget.SetCompact(nBits);
     CBigNum bnTargetLimit = bnProofOfWorkLimit;
     bnTargetLimit.SetCompact(bnTargetLimit.GetCompact());
@@ -1154,7 +1165,7 @@ int64 GetProofOfWorkReward(unsigned int nBits)
 }
 
 // stronghands: miner's coin stake is rewarded based on coin age spent (coin-days)
-int64 GetProofOfStakeReward(int64 nCoinAge)
+int64 GetProofOfStakeReward_V1(int64 nCoinAge)
 {
     static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
     int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;
@@ -1163,6 +1174,38 @@ int64 GetProofOfStakeReward(int64 nCoinAge)
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d"\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
     return nSubsidy;
+}
+
+int64 GetProofOfStakeReward_V2(int64 nCoinAge)
+{
+    static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
+    static int64 nMaxMintProofOfStake = 1500000000 * COIN; // 1 billion coins
+    int64 nSubsidy = min(nMaxMintProofOfStake, (nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear));    
+    
+	if (nBestHeight > 593500)
+	{
+		nSubsidy = 500000 * COIN;  // 500,000 coins
+	}
+	
+	else if (nBestHeight > 609500)
+	{
+		nSubsidy = 250000 * COIN;  // 500,000 coins
+	}    
+    
+    if (fDebug && GetBoolArg("-printcreation"))
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
+    return nSubsidy;
+}
+
+int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nTime)
+{
+	int64_t nReward = 0;
+	if(nTime > FORK_TIME)
+		nReward = GetProofOfStakeReward_V2(nCoinAge);
+	else
+		nReward = GetProofOfStakeReward_V1(nCoinAge);
+	
+	return nReward;
 }
 
 // Remove a random orphan block (which does not have any dependent orphans).
@@ -1523,7 +1566,7 @@ bool CTransaction::CheckInputs(CValidationState &state, CCoinsViewCache &inputs,
             if (!GetCoinAge(state, inputs, nCoinAge))
                 return error("CheckInputs() : %s unable to get coin age for coinstake", GetHash().ToString().c_str());
             int64 nStakeReward = GetValueOut() - nValueIn;
-            if (nStakeReward > GetProofOfStakeReward(nCoinAge) - GetMinFee() + MIN_TX_FEE)
+            if (nStakeReward > GetProofOfStakeReward(nCoinAge, nTime) - GetMinFee() + MIN_TX_FEE)
                 return state.DoS(100, error("CheckInputs() : %s stake reward exceeded", GetHash().ToString().c_str()));
         }
         else
@@ -3222,10 +3265,10 @@ bool LoadBlockIndex()
         nModifierInterval = 60 * 20; // test net modifier interval is 20 minutes
 #else
         hashGenesisBlock = hashGenesisBlockTestNet;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 28);
-        nStakeMinAge = 60 * 60 * 24; // test net min age is 1 day
-        nCoinbaseMaturity = 60;
-        bnInitialHashTarget = CBigNum(~uint256(0) >> 29);
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
+        nStakeMinAge = 60 * 60; // test net min age is 1 hour
+        nCoinbaseMaturity = 6;
+        bnInitialHashTarget = CBigNum(~uint256(0) >> 20);
         nModifierInterval = 60 * 20; // test net modifier interval is 20 minutes
 #endif
     }
@@ -3281,8 +3324,8 @@ bool InitBlockIndex() {
 
         if (fTestNet)
         {
-            block.nTime    = 1345090000;
-            block.nNonce   = 122894938;
+            block.nTime    = 1435547102;
+            block.nNonce   = 1560399;
         }
 
 #ifdef TESTING
@@ -3757,8 +3800,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64 nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < MIN_PROTO_VERSION)
-        {
+        if (pfrom->nVersion < (GetAdjustedTime() > FORK_TIME ? MIN_PROTO_VERSION_FORK : MIN_PROTO_VERSION))        {
             // Since February 20, 2012, the protocol is initiated at version 209,
             // and earlier versions are no longer supported
             printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);

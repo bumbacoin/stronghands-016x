@@ -7,7 +7,8 @@
 # Mac OS X makefile for stronghands
 # Originally by Laszlo Hanyecz (solar@heliacal.net)
 
-CXX=llvm-g++
+CXX=g++
+CC=gcc
 DEPSDIR=/opt/local
 
 INCLUDEPATHS= \
@@ -28,7 +29,7 @@ LIBS= -dead_strip
 TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 
 ifdef STATIC
-# Build STATIC if you are redistributing the bitcoind binary
+# Build STATIC if you are redistributing the stronghandsd binary
 TESTLIBS += \
  $(DEPSDIR)/lib/libboost_unit_test_framework-mt.a
 LIBS += \

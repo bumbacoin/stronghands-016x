@@ -1260,6 +1260,12 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend,
                     scriptChange = pcoin.first->vout[pcoin.second].scriptPubKey;
                 }
 
+		/* the following prevents creating a transaction where inputs accumulate over MAX_MONEY
+		 it would be useful to display an informational error message describing the situation
+        */
+                if (nValueIn > MAX_MONEY)
+                return error("Transaction creation failed : total inputs exceed MAX_MONEY");  
+                
                 int64 nChange = nValueIn - nValue - nFeeRet;
                 // The following if statement should be removed once enough miners
                 // have upgraded to the 0.9 GetMinFee() rules. Until then, this avoids
@@ -1512,7 +1518,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (pcoin.first->vout[pcoin.second].nValue > nCombineThreshold)
                 continue;
             // Do not add input that is still too young
-            if (pcoin.first->nTime + STAKE_MAX_AGE > txNew.nTime)
+            if (pcoin.first->nTime + (GetAdjustedTime() > FORK_TIME ? STAKE_MAX_AGE_2 : STAKE_MAX_AGE) > txNew.nTime)
                 continue;
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
             nCredit += pcoin.first->vout[pcoin.second].nValue;
@@ -1527,7 +1533,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (!txNew.GetCoinAge(state, view, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
-        int64 nReward = GetProofOfStakeReward(nCoinAge);
+        int64 nReward = GetProofOfStakeReward(nCoinAge, txNew.nTime);
         // Refuse to create mint that has zero or negative reward
         if(nReward <= 0) {
           return false;
