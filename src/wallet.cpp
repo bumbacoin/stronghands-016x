@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2011-2017 The Stronghands developers
+// Copyright (c) 2009-2012 The Bitcoin Developers
+// Copyright (c) 2011-2017 The Peercoin developers
+// Copyright (c) 2017-2018 The Stronghands developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1533,7 +1534,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if (!txNew.GetCoinAge(state, view, nCoinAge))
             return error("CreateCoinStake : failed to calculate coin age");
 
-        int64 nReward = GetProofOfStakeReward(nCoinAge, txNew.nTime);
+        int64 nReward = GetProofOfStakeReward(nCoinAge);
         // Refuse to create mint that has zero or negative reward
         if(nReward <= 0) {
           return false;

@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2011-2015 The Stronghands developers
+// Copyright (c) 2011-2017 The Peercoin developers
+// Copyright (c) 2017-2018 The Stronghands developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1165,29 +1166,18 @@ int64 GetProofOfWorkReward(unsigned int nBits)
 }
 
 // stronghands: miner's coin stake is rewarded based on coin age spent (coin-days)
-int64 GetProofOfStakeReward_V1(int64 nCoinAge)
+int64 GetProofOfStakeReward(int64 nCoinAge)
 {
     static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
-    int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;
-
-//    strMotivational = "Wow, BRUH you just staked!";
-    if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d"\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
-    return nSubsidy;
-}
-
-int64 GetProofOfStakeReward_V2(int64 nCoinAge)
-{
-    static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
-    static int64 nMaxMintProofOfStake = 1500000000 * COIN; // 1 billion coins
-    int64 nSubsidy = min(nMaxMintProofOfStake, (nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear));    
     
-	if (nBestHeight > 593500)
+    int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;    
+    
+	if (nBestHeight  > 595465)   // first block after FORK_TIME // Saturday, February 17, 2018 12:00:00 AM GMT // 
 	{
 		nSubsidy = 500000 * COIN;  // 500,000 coins
 	}
 	
-	else if (nBestHeight > 609500)
+	else if (nBestHeight  > 609500)
 	{
 		nSubsidy = 250000 * COIN;  // 500,000 coins
 	}    
@@ -1197,16 +1187,6 @@ int64 GetProofOfStakeReward_V2(int64 nCoinAge)
     return nSubsidy;
 }
 
-int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nTime)
-{
-	int64_t nReward = 0;
-	if(nTime > FORK_TIME)
-		nReward = GetProofOfStakeReward_V2(nCoinAge);
-	else
-		nReward = GetProofOfStakeReward_V1(nCoinAge);
-	
-	return nReward;
-}
 
 // Remove a random orphan block (which does not have any dependent orphans).
 void static PruneOrphanBlocks()
@@ -1566,7 +1546,7 @@ bool CTransaction::CheckInputs(CValidationState &state, CCoinsViewCache &inputs,
             if (!GetCoinAge(state, inputs, nCoinAge))
                 return error("CheckInputs() : %s unable to get coin age for coinstake", GetHash().ToString().c_str());
             int64 nStakeReward = GetValueOut() - nValueIn;
-            if (nStakeReward > GetProofOfStakeReward(nCoinAge, nTime) - GetMinFee() + MIN_TX_FEE)
+            if (nStakeReward > GetProofOfStakeReward(nCoinAge) - GetMinFee() + MIN_TX_FEE)
                 return state.DoS(100, error("CheckInputs() : %s stake reward exceeded", GetHash().ToString().c_str()));
         }
         else
