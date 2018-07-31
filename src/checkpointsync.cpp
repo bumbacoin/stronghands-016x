@@ -68,7 +68,7 @@ using namespace std;
 
 
 // stronghands: sync-checkpoint master key
-const std::string CSyncCheckpoint::strMainPubKey = "04c0c707c28533fd5c9f79d2d3a2d80dff259ad8f915241cd14608fb9bc07c74830efe8438f2b272a866b4af5e0c2cc2a9909972aefbd976937e39f46bb38c277c";
+const std::string CSyncCheckpoint::strMainPubKey = "04e19d7361bfaf777db13820eb464f5c1ee39fe690fcd90127360c1161d17263b4e0697f6c2cca84f8f5eb6e514469f26e12a69e15055ef29cae06ee6d05c063d3";
 const std::string CSyncCheckpoint::strTestPubKey = "0400c195be8d5194007b3f02249f785a51505776bd8f43cc6d49206163e08a63ad9009c814966921c361b14949c51e281edc9347e7ce0e8c57019df1313a6cac7b";
 std::string CSyncCheckpoint::strMasterPrivKey = "";
 

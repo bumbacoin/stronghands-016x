@@ -738,7 +738,7 @@ void CoinControlDialog::updateView()
             itemOutput->setData(COLUMN_CONFIRMATIONS, Qt::DisplayRole, out.nDepth);
 
             // coin age
-            int nDayWeight = (min((GetAdjustedTime() - out.tx->GetTxTime()), (int64)(GetAdjustedTime() > FORK_TIME ? STAKE_MAX_AGE_2 : STAKE_MAX_AGE)) - nStakeMinAge) / 86400;
+            int nDayWeight = (min((GetAdjustedTime() - out.tx->GetTxTime()), (int64) STAKE_MAX_AGE_2) - nStakeMinAge) / 86400;
             int64 coinAge = max(out.tx->vout[out.i].nValue * nDayWeight / COIN, (int64) 0);
             itemOutput->setData(COLUMN_COINAGE, Qt::DisplayRole, coinAge);
 
