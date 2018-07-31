@@ -20,12 +20,12 @@ unsigned int nProtocolV04TestSwitchTime = 1395700000;
 // to maintain current network protocols Protocol v0.5 and v0.6 set to trigger in 2050, giving plenty of time
  
 // Protocol switch time of v0.5 kernel protocol
-unsigned int nProtocolV05SwitchTime     = 9995524165; //2525524165;
-unsigned int nProtocolV05TestSwitchTime = 9995524165; //2525524165
+unsigned int nProtocolV05SwitchTime     = 2525524165;
+unsigned int nProtocolV05TestSwitchTime = 2525524165;
 // Protocol switch time of v0.6 kernel protocol
 // supermajority hardfork: actual fork will happen later than switch time
-const unsigned int nProtocolV06SwitchTime     = 9995524165; // Tue 12 Dec 03:40:00 UTC 2017
-const unsigned int nProtocolV06TestSwitchTime = 9995524165; // Tue 17 Oct 00:00:00 UTC 2017
+const unsigned int nProtocolV06SwitchTime     = 2525524165; // Tue 12 Dec 03:40:00 UTC 2017
+const unsigned int nProtocolV06TestSwitchTime = 2525524165; // Tue 17 Oct 00:00:00 UTC 2017
 
 
 // Modifier interval: time to elapse before new modifier is computed
@@ -325,10 +325,7 @@ static bool GetKernelStakeModifierV05(unsigned int nTimeTx, uint64& nStakeModifi
 
 // V0.3: Stake modifier used to hash for a stake kernel is chosen as the stake
 // modifier about a selection interval later than the coin generating the kernel
-//static bool GetKernelStakeModifierV03(uint256 hashBlockFrom, uint64& nStakeModifier, int& nStakeModifierHeight, int64& nStakeModifierTime, bool fPrintProofOfStake)
-
-// ignore v0.5 for the moment
-static bool GetKernelStakeModifier(uint256 hashBlockFrom, uint64& nStakeModifier, int& nStakeModifierHeight, int64& nStakeModifierTime, bool fPrintProofOfStake)
+static bool GetKernelStakeModifierV03(uint256 hashBlockFrom, uint64& nStakeModifier, int& nStakeModifierHeight, int64& nStakeModifierTime, bool fPrintProofOfStake)
 {
     nStakeModifier = 0;
     if (!mapBlockIndex.count(hashBlockFrom))
