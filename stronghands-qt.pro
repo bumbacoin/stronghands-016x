@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = stronghands-qt
 macx:TARGET = "Stronghands-Qt"
-VERSION = 0.1.5.9
+VERSION = 0.1.5.91
 INCLUDEPATH += src src/json src/qt
 QT += network core
 greaterThan(QT_MAJOR_VERSION, 4):QT+=widgets
@@ -18,29 +18,6 @@ CONFIG += thread
 # Dependency library locations can be customized with:
 #    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
-
-# winbuild dependencies
-windows {
-    contains(MXE, 1) {
-        BDB_INCLUDE_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/include
-        BDB_LIB_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/lib
-        BOOST_INCLUDE_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/include/boost
-        BOOST_LIB_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/lib
-        BOOST_LIB_SUFFIX=-mt
-        BOOST_THREAD_LIB_SUFFIX=_win32-mt
-
-        MINIUPNPC_INCLUDE_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/include
-        MINIUPNPC_LIB_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/lib
-        OPENSSL_INCLUDE_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/include/openssl
-        OPENSSL_LIB_PATH=/usr/lib/mxe/usr/i686-w64-mingw32.static/lib
-    	LIBS += -lpthread
-        CXXFLAGS=-std=gnu++11 -march=i686
-        LDFLAGS=-march=i686
-           PATH=/usr/lib/mxe/usr/bin:/home/gjh/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-        QMAKE_LRELEASE=/usr/lib/mxe/usr/i686-w64-mingw32.static/qt5/bin/lrelease
-        QTDIR=/usr/lib/mxe/usr/i686-w64-mingw32.static/qt5
-    }
-}
 
 OBJECTS_DIR = build
 MOC_DIR = build

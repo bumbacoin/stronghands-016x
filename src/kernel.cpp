@@ -407,7 +407,11 @@ bool CheckStakeKernelHash(unsigned int nBits, const CBlockHeader& blockFrom, uns
     // v0.3 protocol kernel hash weight starts from 0 at the 30-day min age
     // this change increases active coins participating the hash and helps
     // to secure the network when proof-of-stake difficulty is low
-    int64 nTimeWeight = min((int64)nTimeTx - txPrev.nTime, (int64)(GetAdjustedTime() > FORK_TIME ? STAKE_MAX_AGE_2 : STAKE_MAX_AGE)) - (IsProtocolV03(nTimeTx)? nStakeMinAge : 0);
+
+    int64 nTimeWeight = min((int64)nTimeTx - txPrev.nTime, (int64)STAKE_MAX_AGE) - nStakeMinAge;
+    if (nTimeTx >= FORK_TIME) 
+         int64 nTimeWeight = min((int64)nTimeTx - txPrev.nTime, (int64)STAKE_MAX_AGE_2) - nStakeMinAge;
+
     CBigNum bnCoinDayWeight = CBigNum(nValueIn) * nTimeWeight / COIN / (24 * 60 * 60);
     // Calculate hash
     CDataStream ss(SER_GETHASH, 0);
